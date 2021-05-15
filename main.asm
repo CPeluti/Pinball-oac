@@ -1,12 +1,14 @@
 .data
-.include "base.data"
+.include "hitMap.data"
 .include "ball.data"
+
 bordas: .word 30,247,200,56
 .eqv gravity 1
 .eqv BOFF -6
 .eqv ELOSSN -5
 .eqv ELOSSP 5
-
+.eqv raioP 7
+.eqv raioN -7
 .text
 	#usar uma matriz com cores pra representar as areas de colisão onde as areas serão os objetos + raio da bola.
 	li t0,gravity
@@ -22,8 +24,8 @@ bordas: .word 30,247,200,56
 	
 	li t0,160	#posicão x inicial
 	li t1,120	#posição y inicial
-	li t2,-40	#força x inicial
-	li t3,-10		#força y inicial
+	li t2,-10	#força x inicial
+	li t3,0		#força y inicial
 	fcvt.s.w fs0,t0
 	fcvt.s.w fs1,t1
 	fcvt.s.w fs2,t2
@@ -36,7 +38,7 @@ bordas: .word 30,247,200,56
 	
 	li a0,0
 	li a1,0
-	la a3,base
+	la a3,hitMap
 	call show
 	
 	fcvt.w.s a0,fs0
@@ -53,7 +55,7 @@ loop:
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
 	la a3,ball
-	la a4,base
+	la a4,hitMap
 	call deleteBall	
 	
 	li a0,0
@@ -78,13 +80,13 @@ loop:
 	li a7,10
 	ecall
 	
-	#printa a bola na tela onde posX=a0 posY=a1, imagemBall=a3
-	#usando o centro da bola como referecia
+	
 	
 	#fa0 = forca aplicada no x ; fa1 = forca aplicada no y
 updateBall:
 	addi sp,sp,-4
 	sw ra,(sp)
+	la a1,hitMap
 	call checkColision
 	lw ra,(sp)
 	addi sp,sp,4
@@ -100,6 +102,8 @@ updateBall:
 	ret
 		
 	
+	#printa a bola na tela onde posX=a0 posY=a1, imagemBall=a3
+	#usando o centro da bola como referecia
 	
 showBall:
 
@@ -219,68 +223,98 @@ show:
 	
 fimShow:
 	ret
-	
+	#a1 = hitMap
 checkColision:
-	#bordas
-	la a0,bordas
+
+	addi a1,a1,8
+	
+	#forcas e posições
 	fcvt.w.s t0,fs0 #posicao x
 	fcvt.w.s t1,fs1	#posicao y
 	fcvt.w.s t2,fs2	#forca x
 	fcvt.w.s t3,fs3	#forca y
-	add t0,t0,t2
-	add t1,t1,t3
-	lw t5,0(a0)
 	
-	addi t1,t1,-7 #subtrai o raio
-	bgt t1,t5,okCima
-		fmul.s fs3,fs3,fs9
-		fneg.s fs3,fs3
-		
-		j okCima
-	addi t1,t1,7 #subtrai o raio	
-	
-	okCima:
-	lw t5,4(a0)
-	
-	addi t0,t0,7 #adiciona o raio
-	ble t0,t5,okDireita
 
-		fmul.s fs2,fs2,fs9
-		fneg.s fs2,fs2
-		j okDireita
-	okDireita:
-	addi t0,t0,-7 #adiciona o raio
-	lw t5,8(a0)
-	addi t1,t1,7 #adiciona o raio
-	blt t1,t5,okBaixo
-		
-		fmul.s fs3,fs3,fs9	#tira energia
-		fcvt.w.s t3,fs3		
-		fcvt.s.w ft0,t3		#ft0 = fs3 arredondado
-		fabs.s ft1,fs3		#ft1 = |fs3|
-		fabs.s ft0,ft0		#ft0 = |ft0|
-		fgt.s t4,fs3,ft0	# t0 = fs3>ft0
-		bnez t4,subtrai
+	bgtz t2,xPositivo		# checa se forca x é positiva
+		addi t5,t0,raioN	#checa borda esquerda
+		li t4,255		#cor branca
+		add t5,t5,t2		#x futuro
+		li t6,320
+		mul t6,t6,t1		#y*320
+		add t5,t5,t6		#ponto futuro ( x futuro + 320* y atual ) 
+		add t5,t5,a1		#x atual
+		lbu t5,0(t5)		#carrega a cor do ponto futuro
+		#checa colizao na esquerda
+		#se ponto futuro for 255, não teve colizão
+		beq t4,t5,okEsquerda
+			fmul.s fs2,fs2,fs9
+			fneg.s fs2,fs2
+		okEsquerda:
+		j fimX
+	xPositivo:
+		addi t5,t0,raioP	#checa borda direita
+		li t4,255		#cor branca
+		add t5,t5,t2		#x futuro
+		li t6,320
+		mul t6,t6,t1		#y*320
+		add t5,t5,t6		#ponto futuro ( x futuro + 320* y atual ) 
+		add t5,t5,a1		#x atual
+		lbu t5,(t5)		#carrega a cor do ponto futuro
+		#checa colizao na direita
+		#se ponto futuro for 255, não teve colizão
+		beq t4,t5,okDireita
+			fmul.s fs2,fs2,fs9
+			fneg.s fs2,fs2
+		okDireita:
 
-			
-		fneg.s fs3,fs3
-		j okBaixo
-		subtrai:
-			addi t3,t3,-1
-			fcvt.s.w fs3,t3
+	fimX:
+	bgtz t3,yPositivo
+		addi t5,t1,raioN	#checa borda de cima
+		li t4,255		#cor branca
+		add t5,t5,t3 		#y futuro
+		li t6,320
+		mul t6,t6,t5		#y*320
+		add t5,t6,t0		#ponto futuro( x atual + 320 *y futuro)
+		add t5,t5,a1		#y atual
+		lbu t5,(t5)		#carrega a cor do ponto futuro
+		#checa colisão em cima
+		beq t4,t5,okCima
+			fmul.s fs3,fs3,fs9
 			fneg.s fs3,fs3
-		j okBaixo
-			
-	okBaixo:
-	addi t1,t1,-7 #adiciona o raio
-	lw t5,12(a0)
-	addi t0,t0,-7 #subtrai o raio
-	bgt t0,t5,okEsquerda
-		fmul.s fs2,fs2,fs9
-		fneg.s fs2,fs2
-	okEsquerda:
-colidiu:
+		okCima:
+			j fimY
 	
-	lw a0,0(sp)
-	ret
+	yPositivo:
+		addi t5,t1,raioP	#checa borda de baixo
+		li t4,255		#cor branca
+		
+		add t5,t5,t3 		#y futuro
+		li t6,320
+		mul t6,t6,t5		#y*320
+		add t5,t6,t0		#ponto futuro( x atual + 320 *y futuro)
+		add t5,t5,a1		#y atual
+		lbu t5,(t5)		#carrega a cor do ponto futuro
+		#checa colisão em baixo
+		beq t4,t5,okBaixo
+			fmul.s fs3,fs3,fs9	#tira energia
+		
+			# arredondamento floor
+			fcvt.w.s t3,fs3		
+			fcvt.s.w ft0,t3		#ft0 = fs3 arredondado
+			fabs.s ft1,fs3		#ft1 = |fs3|
+			fabs.s ft0,ft0		#ft0 = |ft0|
+			fgt.s t4,fs3,ft0	# t0 = fs3>ft0
+			bnez t4,subtrai
+
+			fneg.s fs3,fs3
+			j okBaixo
+			subtrai:
+				addi t3,t3,-1
+				fcvt.s.w fs3,t3
+				fneg.s fs3,fs3
+		
+		okBaixo:
+		fimY:
+		lw a0,0(sp)
+		ret
 
