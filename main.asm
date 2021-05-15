@@ -13,15 +13,17 @@ bordas: .word 30,247,200,56
 	fcvt.s.w fs8,t0
 	li t0,1
 	li t1,2	#energia
+	
 	fcvt.s.w ft1,t1
 	fcvt.s.w ft0,t0
 	fdiv.s fs9,ft0,ft1	#fs9 = 50% energy loss
+
 	
 	
-	li t0,160
-	li t1,120
-	li t2,1
-	li t3,1
+	li t0,160	#posicão x inicial
+	li t1,120	#posição y inicial
+	li t2,-40	#força x inicial
+	li t3,-10		#força y inicial
 	fcvt.s.w fs0,t0
 	fcvt.s.w fs1,t1
 	fcvt.s.w fs2,t2
@@ -92,7 +94,7 @@ updateBall:
 		
 		fadd.s fs2,fs2,fa0#atualiza forca x
 		fadd.s fs3,fs3,fa1
-		#fadd.s fs3,fs3,fs8#atualiza forca y incluindo a gravidade
+		fadd.s fs3,fs3,fs8#atualiza forca y incluindo a gravidade
 	
 	
 	ret
