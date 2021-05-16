@@ -22,14 +22,21 @@ bordas: .word 30,247,200,56
 	
 	li t0,170	#posicão x inicial
 	li t1,30	#posição y inicial
-	li t2,0		#força x inicial
+	li t2,10		#força x inicial
 	li t3,5	#força y inicial
 	li t4,raio
+	li t5,gravity
 	fcvt.s.w fs0,t0
 	fcvt.s.w fs1,t1
 	fcvt.s.w fs2,t2
 	fcvt.s.w fs3,t3
 	fcvt.s.w fs4,t4
+	fcvt.s.w fs8,t5
+	li t0,1
+	li t1,2
+	fcvt.s.w ft0,t0
+	fcvt.s.w ft1,t1
+	fdiv.s fs5,ft0,ft1
 	
 	li a7,30
 	ecall
@@ -61,8 +68,10 @@ loop:
 	la a4,hitMap
 	#call deleteBall	
 	
+	
 	li a0,0
 	li a1,0
+	la a4,hitMap
 	call updateBall
 	
 	
@@ -125,11 +134,11 @@ updateBall:
 		
 		fadd.s fs2,fs2,fa0#atualiza forca x
 		fadd.s fs3,fs3,fa1
-		#fadd.s fs3,fs3,fs8#atualiza forca y incluindo a gravidade
+		fadd.s fs3,fs3,fs8#atualiza forca y incluindo a gravidade
 	
 	
 	lw ra,0(sp)
-	addi sp,sp,16
+	addi sp,sp,4
 	
 	ret
 		

@@ -1,3 +1,4 @@
+#a4 = hitmap
 #fa0 = x obstaculo
 #fa1 = y obstaculo
 #fa2 = raio obstaculo
@@ -6,6 +7,7 @@
 #fs2 = vel x
 #fs3 = vel y
 #fs4 = raio bola
+#fs5 = perda de energia
 #fa3 = sen da perpendicular
 #fa4 = cos da perpendicular 
 
@@ -13,39 +15,95 @@ checkColision:
 li t2,0 #flag de colisão das bordas
 #proxima posição x
 
-fadd.s ft0,fs2,fs0
-fcvt.w.s t0,ft0
+fadd.s ft0,fs2,fs0#posição futura x
+fcvt.w.s t0,ft0	
 fcvt.w.s t3,fs4
-sub t0,t0,t3
-li t1,95
-bge t0,t1,okEsquerda
+fcvt.w.s t4,fs1
+sub t0,t0,t3	#subtrai raio para checar a borda da esquerda
+li t3,320
+mul t3,t3,t4	#posição do y na matriz
+add t0,t0,t3 	#posição x+320y(ponto no vetor)
+add t0,t0,a4	#adiciona o endereço do vetor
+lbu t0,(t0)
+li t1,255
+beq t0,t1,okEsquerda
 	li t2,1
-	fneg.s fs2,fs2
+	
 okEsquerda:
-li t1,251
-ble t0,t1,okDireita
+
+fadd.s ft0,fs2,fs0#posição futura x
+fcvt.w.s t0,ft0	
+fcvt.w.s t3,fs4
+fcvt.w.s t4,fs1
+add t0,t0,t3	#subtrai raio para checar a borda da direita
+li t3,320
+mul t3,t3,t4	#posição do y na matriz
+add t0,t0,t3 	#posição x+320y(ponto no vetor)
+add t0,t0,a4	#adiciona o endereço do vetor
+lbu t0,(t0)
+li t1,255
+beq t0,t1,okDireita
 	li t2,1
-	fneg.s fs2,fs2
 okDireita:
 
 #proxima posição y
 
-fadd.s ft0,fs3,fs1
-fcvt.w.s t0,ft0
+fadd.s ft0,fs3,fs1#posição futura y
+fcvt.w.s t0,ft0	
 fcvt.w.s t3,fs4
-sub t0,t0,t3
-li t1,17
-bge t0,t1,okCima
-	li t2,1
-	fneg.s fs3,fs3
+fcvt.w.s t4,fs0	#posicao x
+sub t0,t0,t3	#subtrai raio para checar a borda de cima
+li t3,320
+mul t0,t0,t3	#posição do y na matriz
+add t0,t0,t4 	#posição x+320y(ponto no vetor)
+add t0,t0,a4	#adiciona o endereço do vetor
+lbu t0,(t0)
+li t1,255
+beq t0,t1,okCima
+	addi t2,t2,2
+	j perdeuEnergia
 okCima:
-li t1,220
-ble t0,t1,okBaixo	
-	li t2,1
-	fneg.s fs3,fs3
+
+
+fadd.s ft0,fs3,fs1#posição futura y
+fcvt.w.s t0,ft0	
+fcvt.w.s t3,fs4
+fcvt.w.s t4,fs0	#posicao x
+add t0,t0,t3	#subtrai raio para checar a borda de cima
+li t3,320
+mul t0,t0,t3	#posição do y na matriz
+add t0,t0,t4 	#posição x+320y(ponto no vetor)
+add t0,t0,a4	#adiciona o endereço do vetor
+lbu t0,(t0)
+li t1,255
+beq t0,t1,okBaixo	
+	addi t2,t2,2
+
 okBaixo:
 	beqz t2,naoSaiu
-		ret
+	perdeuEnergia:
+		
+		li t3,1
+		beq t2,t3,x
+		li t3,2
+		beq t2,t3,y
+		li t3,3
+		beq t2,t3,xy
+		
+		x:	
+			fneg.s fs2,fs2
+			fmul.s fs2,fs2,fs5
+			ret
+		y:
+			fneg.s fs3,fs3
+			fmul.s fs3,fs3,fs5
+			ret
+		xy:	
+			fneg.s fs3,fs3
+			fneg.s fs2,fs2
+			fmul.s fs2,fs2,fs5
+			fmul.s fs3,fs3,fs5
+			ret
 naoSaiu: 
 	
 	addi sp,sp,-8
