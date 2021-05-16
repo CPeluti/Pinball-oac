@@ -15,6 +15,8 @@ li t2,0 #flag de colisão das bordas
 
 fadd.s ft0,fs2,fs0
 fcvt.w.s t0,ft0
+fcvt.w.s t3,fs4
+sub t0,t0,t3
 li t1,95
 bge t0,t1,okEsquerda
 	li t2,1
@@ -29,6 +31,9 @@ okDireita:
 #proxima posição y
 
 fadd.s ft0,fs3,fs1
+fcvt.w.s t0,ft0
+fcvt.w.s t3,fs4
+sub t0,t0,t3
 li t1,17
 bge t0,t1,okCima
 	li t2,1
