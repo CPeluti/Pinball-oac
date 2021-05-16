@@ -1,0 +1,46 @@
+.data
+# Numero de Notas a tocar
+NUM: .word 17
+# lista de nota,duração,nota,duração,nota,duração,...  
+# 117 bateria   						#13
+NOTAS: 69,550,76,1050,69,550,76,1050,71,550, 76,1050,71,550,76,1050,72,550,76,1050,72,550,76,1050,74,550,76,1050,74,550,76,550,71,550
+
+.text
+	la t1,NUM		# define o endereço do número de notas
+	lw t2,0(t1)		# le o numero de notas
+	la t1,NOTAS		# define o endereço das notas
+	li t0,0			# zera o contador de notas
+LOOP:	beq t0,t2, FIM		# contador chegou no final? então  vá para FIM
+	li a3,127		# define o volume
+	li a2,2			# define o instrumento
+	lw a0,0(t1)		# le o valor da nota
+	lw a1,4(t1)		# le a duracao da nota
+	li a7,31		# define a chamada de syscall
+	ecall			# toca a nota
+	li a3,70		# define o volume
+	li a2,10		# define o instrumento
+	lw a0,0(t1)		# le o valor da nota
+	addi a0,a0,24
+	lw a1,4(t1)		# le a duracao da nota
+	li a7,31		# define a chamada de syscall
+	ecall			# toca a nota
+	li a3,45		# define o volume
+	li a2,91		# define o instrumento
+	lw a0,0(t1)		# le o valor da nota
+	addi a0,a0,-12
+	lw a1,4(t1)		# le a duracao da nota
+	li a7,31		# define a chamada de syscall
+	ecall			# toca a nota
+	mv a0,a1		# passa a duração da nota para a pausa
+	li a7,32		# define a chamada de syscal 
+	ecall			# realiza uma pausa de a0 ms
+	addi t1,t1,8		# incrementa para o endereço da próxima nota
+	addi t0,t0,1		# incrementa o contador de notas
+	j LOOP			# volta ao loop
+	
+FIM:	li t0, 0
+	la t1, NOTAS
+	j LOOP
+	li a7,10		# define o syscall Exit
+	ecall			# exit
+
