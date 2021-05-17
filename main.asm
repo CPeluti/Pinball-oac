@@ -1,38 +1,42 @@
+#fs0 = pos x
+#fs1 = pos y
+#fs2 = vel x
+#fs3 = vel y
+#fs4 = raio bola
 .data
 .include "hitMap.data"
 .include "ball.data"
-
+#(x,y,raio,tipo)	
+obstaculos: .word 173,114,6,1
 
 bordas: .word 30,247,200,56
 .eqv gravity 1
-.eqv BOFF -6
-.eqv ELOSSN -5
-.eqv ELOSSP 5
-.eqv raioP 7
-.eqv raioN -7
+.eqv BOFF -4
+.eqv raio 4
+
 .text
 	
 
-	#usar uma matriz com cores pra representar as areas de colisão onde as areas serão os objetos + raio da bola.
-	li t0,gravity
-	fcvt.s.w fs8,t0
-	li t0,1
-	li t1,2	#energia
-	
-	fcvt.s.w ft1,t1
-	fcvt.s.w ft0,t0
-	fdiv.s fs9,ft0,ft1	#fs9 = 50% energy loss
+
 
 	
-	
-	li t0,160	#posicão x inicial
-	li t1,120	#posição y inicial
-	li t2,-5	#força x inicial
-	li t3,0		#força y inicial
+	li t0,170	#posicão x inicial
+	li t1,30	#posição y inicial
+	li t2,10		#força x inicial
+	li t3,5	#força y inicial
+	li t4,raio
+	li t5,gravity
 	fcvt.s.w fs0,t0
 	fcvt.s.w fs1,t1
 	fcvt.s.w fs2,t2
 	fcvt.s.w fs3,t3
+	fcvt.s.w fs4,t4
+	fcvt.s.w fs8,t5
+	li t0,1
+	li t1,2
+	fcvt.s.w ft0,t0
+	fcvt.s.w ft1,t1
+	fdiv.s fs5,ft0,ft1
 	
 	li a7,30
 	ecall
@@ -62,10 +66,12 @@ loop:
 	fcvt.w.s a1,fs1
 	la a3,ball
 	la a4,hitMap
-	call deleteBall	
+	#call deleteBall	
+	
 	
 	li a0,0
 	li a1,0
+	la a4,hitMap
 	call updateBall
 	
 	
@@ -86,23 +92,53 @@ loop:
 	
 	
 	
-	#fa0 = forca aplicada no x ; fa1 = forca aplicada no y
+	
 updateBall:
-	addi sp,sp,-4
-	sw ra,(sp)
-	la a1,hitMap
-	call checkColision
-	lw ra,(sp)
-	addi sp,sp,4
+		
+		
+	addi sp,sp,-16
+	fsw fa0,0(sp)
+	fsw fa1,4(sp)
+	fsw fa2,8(sp)
+	sw ra,12(sp)
+		#fa0 = x obstaculo
+		#fa1 = y obstaculo
+		#fa2 = raio obstaculo
+		
+		la t0,obstaculos
+		lw t1,0(t0)
+		fcvt.s.w fa0,t1
+		lw t1,4(t0)
+		fcvt.s.w fa1,t1
+		lw t1,8(t0)
+		fcvt.s.w fa2,t1
+		call checkColision
+		
+		flw fa0,0(sp)
+		flw fa1,4(sp)
+		flw fa2,8(sp)
+		addi sp,sp,12
 		
 		fadd.s fs0,fs2,fs0
-		fadd.s fs1,fs3,fs1
+		fmv.s ft0,fa0
+		fmv.s fa0,fs0
+		call floor
+		fcvt.s.w fs0,a0
 		
+		fadd.s fs1,fs3,fs1
+		fmv.s fa0,fs1
+		call floor
+		fcvt.s.w fs1,a0
+		
+		fmv.s fa0,ft0
 		
 		fadd.s fs2,fs2,fa0#atualiza forca x
 		fadd.s fs3,fs3,fa1
 		fadd.s fs3,fs3,fs8#atualiza forca y incluindo a gravidade
 	
+	
+	lw ra,0(sp)
+	addi sp,sp,4
 	
 	ret
 		

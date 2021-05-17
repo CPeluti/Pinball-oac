@@ -1,9 +1,11 @@
 floor:
 # arredondamento floor 
-			addi sp,sp,-12
+			addi sp,sp,-20
 			sw t0,0(sp)
 			sw t1,4(sp)
 			sw t2,8(sp)
+			fsw ft0,12(sp)
+			fsw ft1,16(sp)
 			
 			fcvt.w.s t0,fa0		#arredonda o valor	
 			fcvt.s.w ft0,t0		#ft0 = fa0 arredondado
@@ -22,5 +24,7 @@ floor:
 			lw t0,0(sp)
 			lw t1,4(sp)
 			lw t2,8(sp)
-			addi sp,sp,12
+			flw ft0,12(sp)
+			flw ft1,16(sp)
+			addi sp,sp,20
 			ret
