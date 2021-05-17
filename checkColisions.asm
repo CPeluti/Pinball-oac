@@ -64,6 +64,11 @@ blez t0,okFD
 
 #checa se precisa checar o flipper direito
 fadd.s ft0,fs2,fs0
+fadd.s ft1,fs3,fs1
+ 
+li t1, 202
+fcvt.w.s t0, ft1
+bge t0,t1,okFE
 fcvt.w.s t0, ft0
 li t1,161
 bge t0,t1,okFE
@@ -73,7 +78,7 @@ bge t0,t1,okFE
 fli (ft0,17)
 fli (ft1,57)
 fli (ft2,2720)
-fli (ft3,200)
+fli (ft3,210)
 
 fdiv.s ft0,ft0,ft1#17/57
 fdiv.s ft1,ft2,ft1#2720/57
@@ -106,9 +111,9 @@ ble t0,t1,okFD
 fli (ft0,16)
 fli (ft1,49)
 fli (ft2,3760)
-fli (ft3,184)
+fli (ft3,189)
 
-fdiv.s ft4,ft4,ft1#16/49
+fdiv.s ft4,ft0,ft1#16/49
 fneg.s ft4,ft4	  #-16/49
 fdiv.s ft1,ft2,ft1#3760/49
 fadd.s ft1,ft1,ft3#3760/49+200
@@ -119,14 +124,14 @@ fadd.s ft3,fs1,fs3
 fsub.s ft3,ft3,ft0#hip triangulo pequeno
 fabs.s ft3,ft3
 pitagoras(ft4,49,16)#ft4 = hip
-sen(ft5,49,ft4)	#ft5 = sen
-cos(ft6,16,ft4)	#ft6 = cos
+sen(ft6,49,ft4)	#ft5 = sen
+cos(ft5,16,ft4)	#ft6 = cos
 fmul.s ft3,ft3,ft6 #ft3 = h
 fcvt.w.s t0,ft3 #t0 = h
 fcvt.w.s t1,fs4#t1 = raio
 
 blt t1,t0,okFD #se raio < H não teve colisão(pula se teve colisao)
-j colisaoLateral
+j colidiuDiagonal
 
 okFD:
 #checa se precisa checar as diagonais superiores
