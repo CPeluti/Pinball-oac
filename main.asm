@@ -93,7 +93,7 @@ loop:
 	
 	
 	
-	
+
 updateBall:
 		
 		
@@ -275,4 +275,5 @@ fimShow:
 		
 .include "round.asm"
 
+.include "inputs.asm"
 
