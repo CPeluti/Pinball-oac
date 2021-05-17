@@ -4,6 +4,7 @@
 #fs3 = vel y
 #fs4 = raio bola
 .data
+.include "map.data"
 .include "hitMap.data"
 .include "ball.data"
 #(x,y,raio,tipo)	
@@ -22,7 +23,7 @@ bordas: .word 30,247,200,56
 	
 	li t0,170	#posicão x inicial
 	li t1,30	#posição y inicial
-	li t2,0		#força x inicial
+	li t2,10		#força x inicial
 	li t3,5	#força y inicial
 	li t4,raio
 	li t5,gravity
@@ -36,7 +37,6 @@ bordas: .word 30,247,200,56
 	li t1,2
 	fcvt.s.w ft0,t0
 	fcvt.s.w ft1,t1
-	fdiv.s fs8,fs8,ft1
 	fdiv.s fs5,ft0,ft1
 	
 	li a7,30
@@ -49,7 +49,7 @@ bordas: .word 30,247,200,56
 	fcvt.s.w fa0,a0
 	fcvt.s.w fa1,a1
 	
-	la a3,hitMap
+	la a3,map
 	call show
 	
 	fcvt.w.s a0,fs0
@@ -66,8 +66,8 @@ loop:
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
 	la a3,ball
-	la a4,hitMap
-	#call deleteBall	
+	la a4,map
+	call deleteBall	
 	
 	
 	li a0,0
@@ -93,7 +93,7 @@ loop:
 	
 	
 	
-
+	
 updateBall:
 		
 		
@@ -275,5 +275,4 @@ fimShow:
 		
 .include "round.asm"
 
-.include "inputs.asm"
 
