@@ -3,6 +3,7 @@
 #fs2 = vel x
 #fs3 = vel y
 #fs4 = raio bola
+#s8 = flipper ativo
 .data
 .include "map.data"
 .include "hitMap.data"
@@ -10,7 +11,7 @@
 .include "ball.data"
 .include "hitboxFlipperE.data" 
 #(x,y,raio,tipo)	
-obstaculos: .word 173,114,6,1
+obstaculos: .word 1,173,124,6,1
 
 bordas: .word 30,247,200,56
 .eqv gravity 1
@@ -22,11 +23,11 @@ bordas: .word 30,247,200,56
 
 
 
-	
-	li t0,160	#posicão x inicial
-	li t1,30	#posição y inicial
-	li t2,10		#força x inicial
-	li t3,10	#força y inicial
+	li s6,0		#flag de gameover
+	li t0,155	#posicão x inicial
+	li t1,60	#posição y inicial
+	li t2,0		#força x inicial
+	li t3,-15	#força y inicial
 	li t4,raio
 	li t5,gravity
 	fcvt.s.w fs0,t0
@@ -63,15 +64,17 @@ bordas: .word 30,247,200,56
 
 loop:
 	
-	#call inputs
-	#call checkInputs
+	call inputs
+	call checkInputs
 	
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
 	la a3,ball
 	la a4,hitMap
-	call deleteBall	
-	
+	call deleteBall
+	li a0,0
+	li a1,0	
+	la a3,hitMap
 	
 	li a0,0
 	li a1,0
@@ -88,7 +91,7 @@ loop:
 	li a0,70
 	ecall
 	
-	#call cleanFlippers
+	call cleanFlippers
 	
 	j loop
 	
@@ -100,28 +103,39 @@ loop:
 updateBall:
 		
 		
-	addi sp,sp,-16
-	fsw fa0,0(sp)
-	fsw fa1,4(sp)
-	fsw fa2,8(sp)
-	sw ra,12(sp)
+	addi sp,sp,-20
+	fsw fa1,0(sp)
+	fsw fa2,4(sp)
+	fsw fa3,8(sp)
+	sw ra,16(sp)
+	sw a0,12(sp)
 		#fa0 = x obstaculo
 		#fa1 = y obstaculo
 		#fa2 = raio obstaculo
 		
-		la t0,obstaculos
-		lw t1,0(t0)
-		fcvt.s.w fa0,t1
-		lw t1,4(t0)
-		fcvt.s.w fa1,t1
-		lw t1,8(t0)
-		fcvt.s.w fa2,t1
+		inicioCheck:la t0,obstaculos
+		lw t6,0(t0)
+		addi t0,t0,4
+		check: blez t6,fimobstaculos
+		lw t2,0(t0)
+		fcvt.s.w fa0,t2
+		lw t2,4(t0)
+		fcvt.s.w fa1,t2
+		lw t2,8(t0)
+		fcvt.s.w fa2,t2
+		addi t0,t0,12
+		addi t6,t6,-1
+		call obstaculoCheck
+		beqz a0,check
+		j inicioCheck		
+		fimobstaculos:
 		call checkColision
 		
 		flw fa0,0(sp)
 		flw fa1,4(sp)
 		flw fa2,8(sp)
-		addi sp,sp,12
+		lw a0,12(sp)
+		addi sp,sp,16
 		
 		fadd.s fs0,fs2,fs0
 		fmv.s ft0,fa0
@@ -281,3 +295,9 @@ fimShow:
 
 .include "inputs.asm"
 
+gameOver:
+li a7,1
+li a0,10
+ecall
+li a7,10
+ecall

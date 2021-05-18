@@ -25,7 +25,7 @@ addi sp,sp,4
 .macro pitagoras (%reg, %cat1, %cat2)
 	addi sp,sp,-8
 	fsw ft0,(sp)
-	fsw ft1,(sp)
+	fsw ft1,4(sp)
 	fli (ft0,%cat1)
 	fli (ft1,%cat2)
 	fmul.s ft0,ft0,ft0
@@ -33,7 +33,7 @@ addi sp,sp,4
 	fadd.s ft0,ft0,ft1
 	fsqrt.s %reg,ft0
 	flw ft0,(sp)
-	flw ft1,(sp)
+	flw ft1,4(sp)
 	addi sp,sp,8
 .end_macro
 .macro sen (%reg,%oposto,%hip)
@@ -72,13 +72,21 @@ add t0,t0,a4	#adiciona o endereço do vetor
 lbu t0,(t0)
 li t1,7
 bne t0,t1,okFlipper
-	fli (ft0,0)
-	fli (ft1,-0)
+	fli (ft0,10)
+	fli (ft1,-20)
 	fadd.s fs2,ft0,fs2
 	fadd.s fs3,ft1,fs3
 	ret
 okFlipper:
-
+li t1,75
+bne t0,t1,okGameOver
+li t1,1
+bne t1,s6,continueGame
+j gameOver
+continueGame:
+li s6,1
+ret
+okGameOver:
 
 
 
@@ -103,7 +111,7 @@ bge t0,t1,okFE
 fli (ft0,17)
 fli (ft1,57)
 fli (ft2,2720)
-fli (ft3,200)
+fli (ft3,215)
 
 fdiv.s ft0,ft0,ft1#17/57
 fdiv.s ft1,ft2,ft1#2720/57
@@ -113,14 +121,17 @@ fadd.s ft3,fs0,fs2#proxima posicao x
 fmul.s ft0,ft0,ft3#17/57*x
 fadd.s ft0,ft0,ft1#resuldado da equação(y na diagonal)
 fadd.s ft3,fs1,fs3
-fsub.s ft3,ft3,ft0#hip triangulo pequeno
+fsub.s ft3,ft0,ft3#hip triangulo pequeno
 fabs.s ft3,ft3
+
 pitagoras(ft4,49,16)#ft4 = hip
 sen(ft5,49,ft4)	#ft5 = sen
 cos(ft6,16,ft4)	#ft6 = cos
 fmul.s ft3,ft3,ft6 #ft3 = h
 fcvt.w.s t0,ft3 #t0 = h
 fcvt.w.s t1,fs4#t1 = raio
+sub t0,t0,t1
+
 
 blt t1,t0,okFE #se raio < H não teve colisão(pula se teve colisao)
 	j colidiuDiagonal
@@ -136,27 +147,28 @@ ble t0,t1,okFD
 fli (ft0,16)
 fli (ft1,49)
 fli (ft2,3760)
-fli (ft3,180)
+fli (ft3,200)
 
-fdiv.s ft4,ft4,ft1#16/49
-fneg.s ft4,ft4	  #-16/49
-fdiv.s ft1,ft2,ft1#3760/49
-fadd.s ft1,ft1,ft3#3760/49+200
-fadd.s ft3,fs0,fs2#proxima posicao
-fmul.s ft0,ft4,ft3#-16/49*x
-fadd.s ft0,ft0,ft1#resuldado da equação(y na diagonal)
+fdiv.s ft4,ft0,ft1	#16/49
+fneg.s ft4,ft4	  	#-16/49
+fdiv.s ft1,ft2,ft1	#3760/49
+fadd.s ft1,ft1,ft3	#3760/49+200
+fadd.s ft3,fs0,fs2	#proxima posicao
+fmul.s ft0,ft4,ft3	#-16/49*x
+fadd.s ft0,ft0,ft1	#resuldado da equação(y na diagonal)
 fadd.s ft3,fs1,fs3
-fsub.s ft3,ft3,ft0#hip triangulo pequeno
+fsub.s ft3,ft0,ft3	#hip triangulo pequeno
 fabs.s ft3,ft3
-pitagoras(ft4,49,16)#ft4 = hip
-sen(ft5,49,ft4)	#ft5 = sen
-cos(ft6,16,ft4)	#ft6 = cos
-fmul.s ft3,ft3,ft6 #ft3 = h
-fcvt.w.s t0,ft3 #t0 = h
-fcvt.w.s t1,fs4#t1 = raio
+pitagoras(ft4,49,16)	#ft4 = hip
+sen(ft5,49,ft4)		#ft5 = sen
+cos(ft6,16,ft4)		#ft6 = cos
+fmul.s ft3,ft3,ft6 	#ft3 = h
+fcvt.w.s t0,ft3 	#t0 = h
+fcvt.w.s t1,fs4		#t1 = raio
+fneg.s ft5 ft5
 
 blt t1,t0,okFD #se raio < H não teve colisão(pula se teve colisao)
-j colisaoLateral
+j colidiuDiagonal
 
 okFD:
 #checa se precisa checar as diagonais superiores
@@ -165,27 +177,39 @@ bgez t0,colisaoLateral
 #diagonal superior direita
 #y = x-231
 fli (ft0,-231)
-fadd.s ft1,fs0,fs2
-fadd.s ft0,ft0,ft1
-fcvt.w.s t0,ft0
-fadd.s ft1,fs1,fs3#proximo y
-fcvt.w.s t1,ft1
+fadd.s ft1,fs0,fs2	#proximo x
+fadd.s ft0,ft0,ft1	#y da equação
+fadd.s ft1,fs1,fs3	#proximo y
+fsub.s ft0,ft0,ft1 	#hip triangulo pequeno
+fabs.s ft0,ft0	
+pitagoras(ft4,3,3)
+sen(ft5,3,ft4)
+cos(ft6,3,ft4)
+fmul.s ft0,ft0,ft6	#ft0 = h
+fcvt.w.s t0,ft0		#t0 = h
+fcvt.w.s t1,fs4		#t1 = raio
+#fneg.s ft5,ft5
 
-bne t0,t1,colisaoLateral
-j colisaoLateral
+blt t1,t0,okSD
+j colidiuDiagonal
 #diagonal superior direita
 #y = -x+172
-fli (ft0,172)
-fadd.s ft1,fs0,fs2#x futuro
-fneg.s ft1,ft1	  #-x
-fadd.s ft0,ft0,ft1#-x+172
-fcvt.w.s t0,ft0
-fadd.s ft1,fs1,fs3#proximo y
-fcvt.w.s t1,ft1
 
-bne t0,t1,colisaoLateral
+okSD: fli (ft0,172)
+fadd.s ft1,fs0,fs2	#proximo x
+fsub.s ft0,ft0,ft1	#y da equação
+fadd.s ft1,fs1,fs3	#proximo y
+fsub.s ft0,ft0,ft1 	#hip triangulo pequeno
+fabs.s ft0,ft0	
+pitagoras(ft4,9,9)
+sen(ft5,9,ft4)
+cos(ft6,9,ft4)
+fmul.s ft0,ft0,ft6	#ft0 = h
+fcvt.w.s t0,ft0		#t0 = h
+fcvt.w.s t1,fs4		#t1 = raio
+fneg.s ft5,ft5
 
-j colisaoLateral
+blt t1,t0,colisaoLateral
 
 colidiuDiagonal:
 	addi sp,sp,-8
@@ -214,7 +238,7 @@ colidiuDiagonal:
 	fneg.s ft0,ft0
 	fmul.s ft1,fa4,ft5	#y*sen
 	fadd.s fs2,ft1,ft0 	#novo x
-	
+
 	fmul.s ft0,fa3,ft5	#x*-sen
 	fneg.s ft1,ft1
 	fmul.s ft1,ft6,fa4	#y*-cos
@@ -222,10 +246,12 @@ colidiuDiagonal:
 	fadd.s fs3,ft1,ft0#novo y
 	
 	
+	
 	flw fa3,(sp)
 	flw fa4,4(sp)
 	addi sp,sp,8
-	
+	fli (ft0,2)
+	#fdiv.s ft0,fs5,ft0
 	fmul.s fs2,fs2,fs5
 	fmul.s fs3,fs3,fs5
 	
@@ -239,7 +265,7 @@ fadd.s ft0,fs2,fs0#posição futura x
 fcvt.w.s t0,ft0	
 fcvt.w.s t3,fs4
 fcvt.w.s t4,fs1
-#sub t0,t0,t3	#subtrai raio para checar a borda da esquerda
+add t0,t0,t3	#subtrai raio para checar a borda da esquerda
 li t3,320
 mul t3,t3,t4	#posição do y na matriz
 add t0,t0,t3 	#posição x+320y(ponto no vetor)
@@ -300,7 +326,8 @@ okCima:
 #	addi t2,t2,2
 
 #okBaixo:
-	beqz t2,naoSaiu
+	bnez t2,perdeuEnergia
+	ret
 	perdeuEnergia:
 		
 		li t3,1
@@ -324,7 +351,7 @@ okCima:
 			fmul.s fs2,fs2,fs5
 			fmul.s fs3,fs3,fs5
 			ret
-naoSaiu: 
+obstaculoCheck: 
 	
 	addi sp,sp,-8
 	fsw fs0,0(sp)
@@ -351,6 +378,7 @@ naoSaiu:
 		flw fs0,0(sp)
 		flw fs1,4(sp)
 		addi sp,sp,8
+		li a0,0
 		ret
 	
 	colidiu:
@@ -359,7 +387,7 @@ naoSaiu:
 		
 		fsub.s ft0,fa0,fs0	# cateto x
 		fdiv.s fa3,ft0,ft2	# sen(x)
-		
+		fneg.s fa3,fa3
 		#|cos(theta) -sen(theta)| 	.	 |x|
 		#|sen(theta) cos(theta)	|		 |y|
 		
@@ -401,6 +429,12 @@ naoSaiu:
 		flw fs0,0(sp)
 		flw fs1,4(sp)
 		addi sp,sp,8
+		fli (ft0,2)
+		#fdiv.s ft0,fs5,ft0
+		fmul.s fs2,fs2,fs5
+		fmul.s fs3,fs3,fs5
+		li a0,1
+		
 		ret
 		
 		

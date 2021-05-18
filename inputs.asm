@@ -27,12 +27,14 @@ checkInputs:
 		addi sp,sp,-4
 		sw ra,(sp)
 		la a1,hitboxFlipperE
-		li a2,121
+		li a2,129
 		li a3,177
 		call drawHitboxOnScreen
-		li a2,121
+		la a1,hitboxFlipperE
+		li a2,129
 		li a3,177
 		call drawHitbox
+		li s8,2
 		lw ra,(sp)
 		addi sp,sp,4
 	ret
@@ -40,29 +42,38 @@ checkInputs:
 	
 	
 cleanFlippers:
+	beqz s8,semFlipper
+	li t0,1
+	beq t0,s8,flipperDireito
+	flipperEsquerdo:
 	addi sp,sp,-4
 	sw ra,(sp)
 	li a0,0xFF000000
 	la a1,hitboxFlipperE
-	li a2,121
+	li a2,129
 	li a3,177
 	la a4,hitMap2
 	call deleteHitbox
 	
 	la a0,hitMap
+	addi a0,a0,8
 	la a1,hitboxFlipperE
-	li a2,121
+	li a2,129
 	li a3,177
 	la a4,hitMap2
 	call deleteHitbox
 	lw ra,(sp)
 	addi sp,sp,4
+	li s8,0
+	ret
+	flipperDireito:
+	ret
+	semFlipper:
 	ret
 	
 #a0=endereço onde tem q ser apagado a1=imagem a ser apagada a2 = x a3 = y a4 = bg
 deleteHitbox:
 	mv t1,a0
-	addi t1,t1,8
 	addi a4,a4,8
 
 	
@@ -83,7 +94,7 @@ deleteHitbox:
 			beqz t6,fimForColunasDelete 			#se i ==0 
 			lb t4,0(a4)					#carrega a word
 			sb t4,0(t1)					#escreve a word na tela
-			addi a4,a4,1					#vai para a proxima word da imagem 
+			addi a4,a4,1					#vai para a proxima pixel da imagem 
 			addi t1,t1,1					#vai para o proximo pixel da tela
 			addi t6,t6,-1					#i--
 			j forColunasDelete
@@ -104,7 +115,6 @@ deleteHitbox:
 
 drawHitboxOnScreen:
 	li t0,0xFF000000
-	addi t0,t0,8
 	li t6,320
 	mul a3,t6,a3
 	add t1,a2,a3							#pos atual
@@ -135,6 +145,8 @@ drawHitboxOnScreen:
 		j forDrawLinha1	
 	fimDrawHitbox1:
 		ret
+		
+		#a1 = hitbox a2=x a3 = y
 drawHitbox:
 	la t0, hitMap
 	addi t0,t0,8
