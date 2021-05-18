@@ -6,7 +6,9 @@
 .data
 .include "map.data"
 .include "hitMap.data"
+.include "hitMap2.data"
 .include "ball.data"
+.include "hitboxFlipperE.data" 
 #(x,y,raio,tipo)	
 obstaculos: .word 173,114,6,1
 
@@ -49,7 +51,7 @@ bordas: .word 30,247,200,56
 	fcvt.s.w fa0,a0
 	fcvt.s.w fa1,a1
 	
-	la a3,map
+	la a3,hitMap
 	call show
 	
 	fcvt.w.s a0,fs0
@@ -61,12 +63,13 @@ bordas: .word 30,247,200,56
 
 loop:
 	
-	
+	call inputs
+	call checkInputs
 	
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
 	la a3,ball
-	la a4,map
+	la a4,hitMap
 	call deleteBall	
 	
 	
@@ -85,6 +88,7 @@ loop:
 	li a0,70
 	ecall
 	
+	call cleanFlippers
 	
 	j loop
 	
@@ -158,6 +162,7 @@ showBall:
 	li t6,320
 	mul t2,t6,t2
 	add t0,t0,t2							#pos atual
+	
 	add t1,t1,t0
 	
 	
@@ -269,6 +274,8 @@ fimShow:
 	ret
 	#a1 = hitMap
 
+
+.include "inputs.asm"
 
 .include "checkColisions.asm"
 		

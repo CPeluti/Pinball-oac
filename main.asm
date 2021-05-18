@@ -4,8 +4,11 @@
 #fs3 = vel y
 #fs4 = raio bola
 .data
+.include "map.data"
 .include "hitMap.data"
+.include "hitMap2.data"
 .include "ball.data"
+.include "hitboxFlipperE.data" 
 #(x,y,raio,tipo)	
 obstaculos: .word 173,114,6,1
 
@@ -20,10 +23,10 @@ bordas: .word 30,247,200,56
 
 
 	
-	li t0,170	#posicão x inicial
+	li t0,160	#posicão x inicial
 	li t1,30	#posição y inicial
-	li t2,0		#força x inicial
-	li t3,5	#força y inicial
+	li t2,10		#força x inicial
+	li t3,10	#força y inicial
 	li t4,raio
 	li t5,gravity
 	fcvt.s.w fs0,t0
@@ -36,7 +39,6 @@ bordas: .word 30,247,200,56
 	li t1,2
 	fcvt.s.w ft0,t0
 	fcvt.s.w ft1,t1
-	fdiv.s fs8,fs8,ft1
 	fdiv.s fs5,ft0,ft1
 	
 	li a7,30
@@ -61,13 +63,14 @@ bordas: .word 30,247,200,56
 
 loop:
 	
-	
+	#call inputs
+	#call checkInputs
 	
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
 	la a3,ball
 	la a4,hitMap
-	#call deleteBall	
+	call deleteBall	
 	
 	
 	li a0,0
@@ -85,14 +88,14 @@ loop:
 	li a0,70
 	ecall
 	
+	#call cleanFlippers
 	
 	j loop
 	
 	li a7,10
 	ecall
 	
-	
-	
+
 
 updateBall:
 		
@@ -190,7 +193,8 @@ fimShow2:
 	#atualiza a posicao da bola na tela onde posX=a0 posY=a1, imagemBall=a3 e imagemBg=a4
 	
 deleteBall: 
-
+	#x=20
+	#y=100 32020
 	################################################################limpa a bola da tela
 	li t1,0xFF000000
 	

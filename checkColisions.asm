@@ -55,6 +55,36 @@ addi sp,sp,4
 
 checkColision:
 
+#colisões laterais
+li t2,0 #flag de colisão das bordas
+#proxima posição x
+
+fadd.s ft0,fs2,fs0#posição futura x
+fadd.s ft1,fs3,fs1
+fcvt.w.s t0,ft0	
+fcvt.w.s t1,ft1
+
+#sub t0,t0,t3	#subtrai raio para checar a borda da esquerda
+li t3,320
+mul t3,t3,t1	#posição do y na matriz
+add t0,t0,t3 	#posição x+320y(ponto no vetor)
+add t0,t0,a4	#adiciona o endereço do vetor
+lbu t0,(t0)
+li t1,7
+bne t0,t1,okFlipper
+	fli (ft0,0)
+	fli (ft1,-0)
+	fadd.s fs2,ft0,fs2
+	fadd.s fs3,ft1,fs3
+	ret
+okFlipper:
+
+
+
+
+
+
+
 #checa se precisa olhar as diagonais dos flippers
 fcvt.w.s t0, fs3
 blez t0,okFD
@@ -106,7 +136,7 @@ ble t0,t1,okFD
 fli (ft0,16)
 fli (ft1,49)
 fli (ft2,3760)
-fli (ft3,184)
+fli (ft3,180)
 
 fdiv.s ft4,ft4,ft1#16/49
 fneg.s ft4,ft4	  #-16/49
@@ -195,6 +225,9 @@ colidiuDiagonal:
 	flw fa3,(sp)
 	flw fa4,4(sp)
 	addi sp,sp,8
+	
+	fmul.s fs2,fs2,fs5
+	fmul.s fs3,fs3,fs5
 	
 	ret
 colisaoLateral:
