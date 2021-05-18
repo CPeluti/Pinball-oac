@@ -19,7 +19,8 @@ FIM:	ret
 checkInputs:
 	li t0, 122 #z
 	beq a0,t0,flipperE
-		
+	li t0, 120 #x
+	beq a0,t0,flipperD	
 	
 	
 	ret
@@ -34,16 +35,33 @@ checkInputs:
 		li a2,129
 		li a3,177
 		call drawHitbox
+		li s8,1
+		lw ra,(sp)
+		addi sp,sp,4
+		ret
+	flipperD:
+		addi sp,sp,-4
+		sw ra,(sp)
+		la a1,hitboxFlipperD
+		li a2,185
+		li a3,175
+		call drawHitboxOnScreen
+		la a1,hitboxFlipperD
+		li a2,185
+		li a3,175
+		call drawHitbox
 		li s8,2
 		lw ra,(sp)
 		addi sp,sp,4
-	ret
+		ret	
 	
 	
 	
 cleanFlippers:
 	beqz s8,semFlipper
 	li t0,1
+	beq t0,s8,flipperEsquerdo
+	li t0,2
 	beq t0,s8,flipperDireito
 	flipperEsquerdo:
 	addi sp,sp,-4
@@ -67,6 +85,26 @@ cleanFlippers:
 	li s8,0
 	ret
 	flipperDireito:
+	addi sp,sp,-4
+	sw ra,(sp)
+	li a0,0xFF000000
+	la a1,hitboxFlipperD
+	li a2,185
+	li a3,175
+	la a4,hitMap2
+	call deleteHitbox
+	
+	la a0,hitMap
+	addi a0,a0,8
+	la a1,hitboxFlipperD
+	li a2,185
+	li a3,175
+	la a4,hitMap2
+	call deleteHitbox
+	lw ra,(sp)
+	addi sp,sp,4
+	li s8,0
+	ret
 	ret
 	semFlipper:
 	ret

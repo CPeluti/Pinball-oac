@@ -10,6 +10,7 @@
 .include "hitMap2.data"
 .include "ball.data"
 .include "hitboxFlipperE.data" 
+.include "hitboxFlipperD.data"
 #(x,y,raio,tipo)	
 obstaculos: .word 1,173,124,6,1
 
@@ -104,9 +105,9 @@ updateBall:
 		
 		
 	addi sp,sp,-20
-	fsw fa1,0(sp)
-	fsw fa2,4(sp)
-	fsw fa3,8(sp)
+	fsw fa0,0(sp)
+	fsw fa1,4(sp)
+	fsw fa2,8(sp)
 	sw ra,16(sp)
 	sw a0,12(sp)
 		#fa0 = x obstaculo

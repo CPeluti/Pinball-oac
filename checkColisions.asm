@@ -72,11 +72,24 @@ add t0,t0,a4	#adiciona o endereço do vetor
 lbu t0,(t0)
 li t1,7
 bne t0,t1,okFlipper
+	li t0,1
+	beq t0,s8,hitboxE
+	li t0,2
+	beq t0,s8,hitboxD
+	ret
+	hitboxE:
 	fli (ft0,10)
 	fli (ft1,-20)
 	fadd.s fs2,ft0,fs2
 	fadd.s fs3,ft1,fs3
 	ret
+	hitboxD:
+	fli (ft0,-10)
+	fli (ft1,-20)
+	fadd.s fs2,ft0,fs2
+	fadd.s fs3,ft1,fs3
+	ret
+	
 okFlipper:
 li t1,75
 bne t0,t1,okGameOver
@@ -188,7 +201,7 @@ cos(ft6,3,ft4)
 fmul.s ft0,ft0,ft6	#ft0 = h
 fcvt.w.s t0,ft0		#t0 = h
 fcvt.w.s t1,fs4		#t1 = raio
-#fneg.s ft5,ft5
+fneg.s ft5,ft5
 
 blt t1,t0,okSD
 j colidiuDiagonal
