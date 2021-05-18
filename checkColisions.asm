@@ -124,7 +124,7 @@ bge t0,t1,okFE
 fli (ft0,17)
 fli (ft1,57)
 fli (ft2,2720)
-fli (ft3,215)
+fli (ft3,210)
 
 fdiv.s ft0,ft0,ft1#17/57
 fdiv.s ft1,ft2,ft1#2720/57
@@ -143,7 +143,7 @@ cos(ft6,16,ft4)	#ft6 = cos
 fmul.s ft3,ft3,ft6 #ft3 = h
 fcvt.w.s t0,ft3 #t0 = h
 fcvt.w.s t1,fs4#t1 = raio
-sub t0,t0,t1
+#sub t0,t0,t1
 
 
 blt t1,t0,okFE #se raio < H não teve colisão(pula se teve colisao)
@@ -289,19 +289,12 @@ beq t0,t1,okEsquerda
 	li t2,1
 	
 okEsquerda:
-
+fcvt.w.s t0,fs2
+blez t0,okDireita
 fadd.s ft0,fs2,fs0#posição futura x
 fcvt.w.s t0,ft0	
-fcvt.w.s t3,fs4
-fcvt.w.s t4,fs1
-add t0,t0,t3	#subtrai raio para checar a borda da direita
-li t3,320
-mul t3,t3,t4	#posição do y na matriz
-add t0,t0,t3 	#posição x+320y(ponto no vetor)
-add t0,t0,a4	#adiciona o endereço do vetor
-lbu t0,(t0)
-li t1,255
-beq t0,t1,okDireita
+li t1,236
+ble t0,t1,okDireita
 	li t2,1
 okDireita:
 
@@ -366,9 +359,10 @@ okCima:
 			ret
 obstaculoCheck: 
 	
-	addi sp,sp,-8
+	addi sp,sp,-12
 	fsw fs0,0(sp)
 	fsw fs1,4(sp)
+	sw t0,8(sp)
 	
 	fadd.s fs0,fs0,fs2
 	fadd.s fs1,fs1,fs3
@@ -390,7 +384,8 @@ obstaculoCheck:
 	bgtz t0, colidiu	#se for 1 teve colisão
 		flw fs0,0(sp)
 		flw fs1,4(sp)
-		addi sp,sp,8
+		lw t0,8(sp)
+		addi sp,sp,12
 		li a0,0
 		ret
 	
@@ -441,7 +436,8 @@ obstaculoCheck:
 		
 		flw fs0,0(sp)
 		flw fs1,4(sp)
-		addi sp,sp,8
+		lw t0,8(sp)
+		addi sp,sp,12
 		fli (ft0,2)
 		#fdiv.s ft0,fs5,ft0
 		fmul.s fs2,fs2,fs5

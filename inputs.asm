@@ -18,34 +18,53 @@ FIM:	ret
 
 checkInputs:
 	li t0, 122 #z
-	beq a0,t0,flipperE
+	beq a0,t0,flipperEDraw
 	li t0, 120 #x
-	beq a0,t0,flipperD	
+	beq a0,t0,flipperDDraw	
 	
 	
 	ret
-	flipperE:
+	flipperEDraw:
 		addi sp,sp,-4
 		sw ra,(sp)
+		#deleta flipper normal
+		li a0,0xFF000000
+		la a1,flipperE
+		li a2,126
+		li a3,191
+		la a4,map
+		call deleteFromAdress
+		#printa flipper rotacionado
+		
+		la a1,flipperE
+		li a2,126
+		li a3,191
+		call drawOnScreen
 		la a1,hitboxFlipperE
 		li a2,129
-		li a3,177
-		call drawHitboxOnScreen
-		la a1,hitboxFlipperE
-		li a2,129
-		li a3,177
+		li a3,191
 		call drawHitbox
 		li s8,1
 		lw ra,(sp)
 		addi sp,sp,4
 		ret
-	flipperD:
+	flipperDDraw:
 		addi sp,sp,-4
 		sw ra,(sp)
-		la a1,hitboxFlipperD
-		li a2,185
-		li a3,175
-		call drawHitboxOnScreen
+		#deleta flipper normal
+		li a0,0xFF000000
+		la a1,flipperD
+		li a2,186
+		li a3,191
+		la a4,map
+		call deleteFromAdress
+		#printa flipper rotacionado
+		addi sp,sp,-4
+		sw ra,(sp)
+		la a1,flipperD
+		li a2,186
+		li a3,191
+		call drawOnScreen
 		la a1,hitboxFlipperD
 		li a2,185
 		li a3,175
@@ -64,43 +83,55 @@ cleanFlippers:
 	li t0,2
 	beq t0,s8,flipperDireito
 	flipperEsquerdo:
+	#deletaFlipperRotacionado
 	addi sp,sp,-4
 	sw ra,(sp)
 	li a0,0xFF000000
-	la a1,hitboxFlipperE
-	li a2,129
-	li a3,177
-	la a4,hitMap2
-	call deleteHitbox
-	
+	la a1,flipperE
+	li a2,126
+	li a3,191
+	la a4,map
+	call deleteFromAdress
+	#printa flipper normal
+	la a1,flipperE
+	li a2,126
+	li a3,191
+	call drawOnScreen
+	#deleta hitbox
 	la a0,hitMap
 	addi a0,a0,8
 	la a1,hitboxFlipperE
 	li a2,129
 	li a3,177
 	la a4,hitMap2
-	call deleteHitbox
+	call deleteFromAdress
 	lw ra,(sp)
 	addi sp,sp,4
 	li s8,0
 	ret
 	flipperDireito:
+	#deleta Flipper rotacionado
 	addi sp,sp,-4
 	sw ra,(sp)
 	li a0,0xFF000000
-	la a1,hitboxFlipperD
-	li a2,185
-	li a3,175
-	la a4,hitMap2
-	call deleteHitbox
-	
+	la a1,flipperD
+	li a2,186
+	li a3,191
+	la a4,map
+	call deleteFromAdress
+	#printa flipper normal
+	la a1,flipperE
+	li a2,186
+	li a3,191
+	call drawOnScreen
+	#deleta hitbox
 	la a0,hitMap
 	addi a0,a0,8
 	la a1,hitboxFlipperD
 	li a2,185
 	li a3,175
 	la a4,hitMap2
-	call deleteHitbox
+	call deleteFromAdress
 	lw ra,(sp)
 	addi sp,sp,4
 	li s8,0
@@ -110,7 +141,7 @@ cleanFlippers:
 	ret
 	
 #a0=endereço onde tem q ser apagado a1=imagem a ser apagada a2 = x a3 = y a4 = bg
-deleteHitbox:
+deleteFromAdress:
 	mv t1,a0
 	addi a4,a4,8
 
@@ -147,11 +178,11 @@ deleteHitbox:
 	fimForDelete:
 	ret
 
-#a1=hitbox 
+#a1=img 
 #a2=x
 #a3=y
 
-drawHitboxOnScreen:
+drawOnScreen:
 	li t0,0xFF000000
 	li t6,320
 	mul a3,t6,a3

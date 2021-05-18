@@ -5,14 +5,16 @@
 #fs4 = raio bola
 #s8 = flipper ativo
 .data
-.include "map.data"
-.include "hitMap.data"
-.include "hitMap2.data"
-.include "ball.data"
-.include "hitboxFlipperE.data" 
-.include "hitboxFlipperD.data"
-#(x,y,raio,tipo)	
-obstaculos: .word 1,173,124,6,1
+.include "./data/map.data"
+.include "./data/hitMap.data"
+.include "./data/hitMap2.data"
+.include "./data/ball.data"
+.include "./data/hitboxFlipperE.data" 
+.include "./data/hitboxFlipperD.data"
+.include "./data/flipperE.data"
+.include "./data/flipperD.data"
+#n, (x,y,raio,tipo),(x,y,raio,tipo),(x,y,raio,tipo)	
+obstaculos: .word 8,173,113,6,2,138,136,6,2,207,137,6,2,207,89,6,2,138,88,6,2,145,62,4,1,172,62,4,1,201,62,4,1
 
 bordas: .word 30,247,200,56
 .eqv gravity 1
@@ -25,7 +27,7 @@ bordas: .word 30,247,200,56
 
 
 	li s6,0		#flag de gameover
-	li t0,155	#posicão x inicial
+	li t0,140	#posicão x inicial
 	li t1,60	#posição y inicial
 	li t2,0		#força x inicial
 	li t3,-15	#força y inicial
@@ -53,13 +55,15 @@ bordas: .word 30,247,200,56
 	fcvt.s.w fa0,a0
 	fcvt.s.w fa1,a1
 	
-	la a3,hitMap
+	la a3,map
 	call show
 	
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
 	la a3,ball
 	call showBall
+	
+	
 	
 	
 
@@ -71,18 +75,14 @@ loop:
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
 	la a3,ball
-	la a4,hitMap
+	la a4,map
 	call deleteBall
-	li a0,0
-	li a1,0	
-	la a3,hitMap
 	
 	li a0,0
 	li a1,0
 	la a4,hitMap
 	call updateBall
-	
-	
+
 	
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
@@ -96,20 +96,21 @@ loop:
 	
 	j loop
 	
-	li a7,10
-	ecall
+	
 	
 
 
 updateBall:
 		
 		
-	addi sp,sp,-20
+	addi sp,sp,-24
 	fsw fa0,0(sp)
 	fsw fa1,4(sp)
 	fsw fa2,8(sp)
-	sw ra,16(sp)
-	sw a0,12(sp)
+	fsw fa3,12(sp)
+	sw a0,16(sp)
+	sw ra,20(sp)
+	
 		#fa0 = x obstaculo
 		#fa1 = y obstaculo
 		#fa2 = raio obstaculo
@@ -124,7 +125,9 @@ updateBall:
 		fcvt.s.w fa1,t2
 		lw t2,8(t0)
 		fcvt.s.w fa2,t2
-		addi t0,t0,12
+		lw t2,12(t0)
+		fcvt.s.w fa3,t2
+		addi t0,t0,16
 		addi t6,t6,-1
 		call obstaculoCheck
 		beqz a0,check
@@ -135,8 +138,9 @@ updateBall:
 		flw fa0,0(sp)
 		flw fa1,4(sp)
 		flw fa2,8(sp)
-		lw a0,12(sp)
-		addi sp,sp,16
+		flw fa3,12(sp)
+		lw a0,16(sp)
+		addi sp,sp,20
 		
 		fadd.s fs0,fs2,fs0
 		fmv.s ft0,fa0
