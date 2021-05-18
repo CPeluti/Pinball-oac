@@ -13,6 +13,8 @@
 .include "./data/hitboxFlipperD.data"
 .include "./data/flipperE.data"
 .include "./data/flipperD.data"
+.include "./data/flipperEROT.data"
+.include "./data/flipperDROT.data"
 #n, (x,y,raio,tipo),(x,y,raio,tipo),(x,y,raio,tipo)	
 obstaculos: .word 8,173,113,6,2,138,136,6,2,207,137,6,2,207,89,6,2,138,88,6,2,145,62,4,1,172,62,4,1,201,62,4,1
 
@@ -63,7 +65,15 @@ bordas: .word 30,247,200,56
 	la a3,ball
 	call showBall
 	
+	la a1,flipperE
+	li a2,126
+	li a3,191
+	call drawOnScreen
 	
+	la a1,flipperD
+	li a2,186
+	li a3,191
+	call drawOnScreen
 	
 	
 

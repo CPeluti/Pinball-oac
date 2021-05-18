@@ -36,10 +36,11 @@ checkInputs:
 		call deleteFromAdress
 		#printa flipper rotacionado
 		
-		la a1,flipperE
+		la a1,flipperEROT
 		li a2,126
-		li a3,191
+		li a3,183
 		call drawOnScreen
+		
 		la a1,hitboxFlipperE
 		li a2,129
 		li a3,191
@@ -59,11 +60,9 @@ checkInputs:
 		la a4,map
 		call deleteFromAdress
 		#printa flipper rotacionado
-		addi sp,sp,-4
-		sw ra,(sp)
-		la a1,flipperD
+		la a1,flipperDROT
 		li a2,186
-		li a3,191
+		li a3,183
 		call drawOnScreen
 		la a1,hitboxFlipperD
 		li a2,185
@@ -87,9 +86,9 @@ cleanFlippers:
 	addi sp,sp,-4
 	sw ra,(sp)
 	li a0,0xFF000000
-	la a1,flipperE
+	la a1,flipperEROT
 	li a2,126
-	li a3,191
+	li a3,183
 	la a4,map
 	call deleteFromAdress
 	#printa flipper normal
@@ -114,13 +113,13 @@ cleanFlippers:
 	addi sp,sp,-4
 	sw ra,(sp)
 	li a0,0xFF000000
-	la a1,flipperD
+	la a1,flipperDROT
 	li a2,186
-	li a3,191
+	li a3,183
 	la a4,map
 	call deleteFromAdress
 	#printa flipper normal
-	la a1,flipperE
+	la a1,flipperD
 	li a2,186
 	li a3,191
 	call drawOnScreen
