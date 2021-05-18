@@ -16,14 +16,51 @@ bordas: .word 30,247,200,56
 
 .text
 	
-
-
-
 	
-	li t0,170	#posicão x inicial
-	li t1,30	#posição y inicial
+	j INICIO
+
+MOLA:	
+	addi sp,sp,-4
+	sw ra,(sp)
+	li a0, 0
+	call inputs
+	lw ra,(sp)
+	addi sp, sp, 4
+	li t4, 49	# ascii 1
+	li t5, 50	# ascii 2
+	li t6, 51	# ascii 3
+  		bne a0, t4, num2
+  		li t3, -2
+  		fcvt.s.w ft0, t3
+  		fadd.s fs3, fs3, ft0
+  		li a1, 1
+  		j FimMola
+  		
+num2:  		bne a0, t5, num3
+		li t3, -3
+  		fcvt.s.w ft0, t3
+  		fadd.s fs3, fs3, ft0
+  		li a1, 1
+  		j FimMola
+		
+num3:		bne a0, t6, FimMola
+		li t3, -5
+  		fcvt.s.w ft0, t3
+  		fadd.s fs3, fs3, ft0
+  		li a1, 1
+  		j FimMola
+  		
+  		
+	j MOLA
+	
+FimMola:beqz a1, MOLA 
+	ret	
+	
+	
+INICIO:	li t0,248	#posicão x inicial
+	li t1,180	#posição y inicial
 	li t2,0		#força x inicial
-	li t3,5	#força y inicial
+	li t3,0		#força y inicial
 	li t4,raio
 	li t5,gravity
 	fcvt.s.w fs0,t0
@@ -56,7 +93,8 @@ bordas: .word 30,247,200,56
 	fcvt.w.s a1,fs1
 	la a3,ball
 	call showBall
-	
+	li a1, 0
+	call MOLA
 	
 
 loop:
