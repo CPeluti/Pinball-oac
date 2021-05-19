@@ -21,6 +21,8 @@ checkInputs:
 	beq a0,t0,flipperEDraw
 	li t0, 120 #x
 	beq a0,t0,flipperDDraw	
+	li t0, 114 #r
+	beq a0,t0,nextStage	
 	
 	
 	ret

@@ -29,7 +29,7 @@ bordas: .word 30,247,200,56
 
 
 	li s6,0		#flag de gameover
-	li t0,140	#posicão x inicial
+	li t0,200	#posicão x inicial
 	li t1,60	#posição y inicial
 	li t2,0		#força x inicial
 	li t3,-15	#força y inicial
@@ -74,8 +74,55 @@ bordas: .word 30,247,200,56
 	li a2,186
 	li a3,191
 	call drawOnScreen
+	j loop
+nextStage:
+
+	li s6,0		#flag de gameover
+	li t0,200	#posicão x inicial
+	li t1,60	#posição y inicial
+	li t2,0		#força x inicial
+	li t3,-15	#força y inicial
+	li t4,raio
+	li t5,gravity
+	fcvt.s.w fs0,t0
+	fcvt.s.w fs1,t1
+	fcvt.s.w fs2,t2
+	fcvt.s.w fs3,t3
+	fcvt.s.w fs4,t4
+	fcvt.s.w fs8,t5
+	li t0,1
+	li t1,2
+	fcvt.s.w ft0,t0
+	fcvt.s.w ft1,t1
+	fdiv.s fs5,ft0,ft1
 	
+	li a7,30
+	ecall
+	li s8,0
+	mv s9,a0
 	
+	li a0,0
+	li a1,0
+	fcvt.s.w fa0,a0
+	fcvt.s.w fa1,a1
+	
+	la a3,map
+	call show
+	
+	fcvt.w.s a0,fs0
+	fcvt.w.s a1,fs1
+	la a3,ball
+	call showBall
+	
+	la a1,flipperE
+	li a2,126
+	li a3,191
+	call drawOnScreen
+	
+	la a1,flipperD
+	li a2,186
+	li a3,191
+	call drawOnScreen
 
 loop:
 	

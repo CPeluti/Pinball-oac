@@ -91,11 +91,14 @@ bne t0,t1,okFlipper
 	ret
 	
 okFlipper:
+li t1,242
+beq t0,t1,nextStage
 li t1,75
 bne t0,t1,okGameOver
 li t1,1
 bne t1,s6,continueGame
 j gameOver
+
 continueGame:
 li s6,1
 ret
@@ -439,7 +442,21 @@ obstaculoCheck:
 		
 		fmv.s fs3,ft3		#atualiza forca y
 		
-		flw fs0,0(sp)
+		################################
+		#pino tipo 1 colisao normal
+		#pino tipo 2 aumenta a velocidade
+		fcvt.w.s t0, fa3
+		li t1,1
+		beq t0,t1,fimPinos
+		fli (ft0,20)
+		fli (ft1,10)
+		fdiv.s ft0,ft0,ft1
+		fmul.s fs3,fs3,ft0
+		fmul.s fs2,fs2,ft0
+		addi s0,s0,100
+		###############################
+		
+		fimPinos:flw fs0,0(sp)
 		flw fs1,4(sp)
 		lw t0,8(sp)
 		addi sp,sp,12
