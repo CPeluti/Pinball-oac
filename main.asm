@@ -3,11 +3,20 @@
 #fs2 = vel x
 #fs3 = vel y
 #fs4 = raio bola
+#s8 = flipper ativo
 .data
-.include "hitMap.data"
-.include "ball.data"
-#(x,y,raio,tipo)	
-obstaculos: .word 173,114,6,1
+.include "./data/map.data"
+.include "./data/hitMap.data"
+.include "./data/hitMap2.data"
+.include "./data/ball.data"
+.include "./data/hitboxFlipperE.data" 
+.include "./data/hitboxFlipperD.data"
+.include "./data/flipperE.data"
+.include "./data/flipperD.data"
+.include "./data/flipperEROT.data"
+.include "./data/flipperDROT.data"
+#n, (x,y,raio,tipo),(x,y,raio,tipo),(x,y,raio,tipo)	
+obstaculos: .word 8,173,113,6,2,138,136,6,2,207,137,6,2,207,89,6,2,138,88,6,2,145,62,4,1,172,62,4,1,201,62,4,1
 
 bordas: .word 30,247,200,56
 .eqv gravity 1
@@ -19,11 +28,11 @@ bordas: .word 30,247,200,56
 
 
 
-	
-	li t0,170	#posicão x inicial
-	li t1,30	#posição y inicial
+	li s6,0		#flag de gameover
+	li t0,140	#posicão x inicial
+	li t1,60	#posição y inicial
 	li t2,0		#força x inicial
-	li t3,5	#força y inicial
+	li t3,-15	#força y inicial
 	li t4,raio
 	li t5,gravity
 	fcvt.s.w fs0,t0
@@ -36,7 +45,6 @@ bordas: .word 30,247,200,56
 	li t1,2
 	fcvt.s.w ft0,t0
 	fcvt.s.w ft1,t1
-	fdiv.s fs8,fs8,ft1
 	fdiv.s fs5,ft0,ft1
 	
 	li a7,30
@@ -49,7 +57,7 @@ bordas: .word 30,247,200,56
 	fcvt.s.w fa0,a0
 	fcvt.s.w fa1,a1
 	
-	la a3,hitMap
+	la a3,map
 	call show
 	
 	fcvt.w.s a0,fs0
@@ -57,25 +65,34 @@ bordas: .word 30,247,200,56
 	la a3,ball
 	call showBall
 	
+	la a1,flipperE
+	li a2,126
+	li a3,191
+	call drawOnScreen
+	
+	la a1,flipperD
+	li a2,186
+	li a3,191
+	call drawOnScreen
+	
 	
 
 loop:
 	
-	
+	call inputs
+	call checkInputs
 	
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
 	la a3,ball
-	la a4,hitMap
-	#call deleteBall	
-	
+	la a4,map
+	call deleteBall
 	
 	li a0,0
 	li a1,0
 	la a4,hitMap
 	call updateBall
-	
-	
+
 	
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
@@ -85,40 +102,55 @@ loop:
 	li a0,70
 	ecall
 	
+	call cleanFlippers
 	
 	j loop
-	
-	li a7,10
-	ecall
 	
 	
 	
 
+
 updateBall:
 		
 		
-	addi sp,sp,-16
+	addi sp,sp,-24
 	fsw fa0,0(sp)
 	fsw fa1,4(sp)
 	fsw fa2,8(sp)
-	sw ra,12(sp)
+	fsw fa3,12(sp)
+	sw a0,16(sp)
+	sw ra,20(sp)
+	
 		#fa0 = x obstaculo
 		#fa1 = y obstaculo
 		#fa2 = raio obstaculo
 		
-		la t0,obstaculos
-		lw t1,0(t0)
-		fcvt.s.w fa0,t1
-		lw t1,4(t0)
-		fcvt.s.w fa1,t1
-		lw t1,8(t0)
-		fcvt.s.w fa2,t1
+		inicioCheck:la t0,obstaculos
+		lw t6,0(t0)
+		addi t0,t0,4
+		check: blez t6,fimobstaculos
+		lw t2,0(t0)
+		fcvt.s.w fa0,t2
+		lw t2,4(t0)
+		fcvt.s.w fa1,t2
+		lw t2,8(t0)
+		fcvt.s.w fa2,t2
+		lw t2,12(t0)
+		fcvt.s.w fa3,t2
+		addi t0,t0,16
+		addi t6,t6,-1
+		call obstaculoCheck
+		beqz a0,check
+		j inicioCheck		
+		fimobstaculos:
 		call checkColision
 		
 		flw fa0,0(sp)
 		flw fa1,4(sp)
 		flw fa2,8(sp)
-		addi sp,sp,12
+		flw fa3,12(sp)
+		lw a0,16(sp)
+		addi sp,sp,20
 		
 		fadd.s fs0,fs2,fs0
 		fmv.s ft0,fa0
@@ -190,7 +222,8 @@ fimShow2:
 	#atualiza a posicao da bola na tela onde posX=a0 posY=a1, imagemBall=a3 e imagemBg=a4
 	
 deleteBall: 
-
+	#x=20
+	#y=100 32020
 	################################################################limpa a bola da tela
 	li t1,0xFF000000
 	
@@ -277,3 +310,9 @@ fimShow:
 
 .include "inputs.asm"
 
+gameOver:
+li a7,1
+li a0,10
+ecall
+li a7,10
+ecall
