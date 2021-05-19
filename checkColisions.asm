@@ -279,18 +279,23 @@ colisaoLateral:
 li t2,0 #flag de colisão das bordas
 #proxima posição x
 
+#fadd.s ft0,fs2,fs0#posição futura x
+#fcvt.w.s t0,ft0	
+#fcvt.w.s t3,fs4
+#fcvt.w.s t4,fs1
+#add t0,t0,t3	#subtrai raio para checar a borda da esquerda
+#li t3,320
+#mul t3,t3,t4	#posição do y na matriz
+#add t0,t0,t3 	#posição x+320y(ponto no vetor)
+#add t0,t0,a4	#adiciona o endereço do vetor
+#lbu t0,(t0)
+#li t1,255
+fcvt.w.s t0,fs2
+bgez t0,okEsquerda
 fadd.s ft0,fs2,fs0#posição futura x
 fcvt.w.s t0,ft0	
-fcvt.w.s t3,fs4
-fcvt.w.s t4,fs1
-add t0,t0,t3	#subtrai raio para checar a borda da esquerda
-li t3,320
-mul t3,t3,t4	#posição do y na matriz
-add t0,t0,t3 	#posição x+320y(ponto no vetor)
-add t0,t0,a4	#adiciona o endereço do vetor
-lbu t0,(t0)
-li t1,255
-beq t0,t1,okEsquerda
+li t1,108
+bge t0,t1,okEsquerda
 	li t2,1
 	
 okEsquerda:
@@ -319,7 +324,7 @@ li t1,255
 beq t0,t1,okCima
 	addi t2,t2,2
 	j perdeuEnergia
-okCima:
+
 
 
 #fadd.s ft0,fs3,fs1#posição futura y
@@ -337,7 +342,7 @@ okCima:
 #	addi t2,t2,2
 
 #okBaixo:
-	bnez t2,perdeuEnergia
+okCima:	bnez t2,perdeuEnergia
 	ret
 	perdeuEnergia:
 		
@@ -395,6 +400,9 @@ obstaculoCheck:
 		ret
 	
 	colidiu:
+		fcvt.w.s t0,fa3	#tipo do pino
+		
+		
 		fsub.s ft0,fa1,fs1	# cateto y
 		fdiv.s fa4,ft0,ft2	# cos(x)
 		
@@ -439,11 +447,75 @@ obstaculoCheck:
 		
 		fmv.s fs3,ft3		#atualiza forca y
 		
+		
+		
+		#pino tipo 1 colisao normal
+		#pino tipo 2 aumenta a velocidade
+		addi sp,sp,-16
+		sw t0,(sp)
+		sw t1,4(sp)
+		fsw ft0,8(sp)
+		fsw ft1,12(sp)
+		
+		li t1,1
+		beq t0,t1,normal
+		fli (ft0,13)
+		fli (ft1,10)
+		fdiv.s ft0,ft0,ft1
+		fmul.s fs3,fs3,ft0
+		fmul.s fs2,fs2,ft0
+		
+		lw t0,(sp)
+		lw t1,4(sp)
+		flw ft0 8(sp)
+		flw ft1 12(sp)	
+		addi sp,sp,16	
+		
+		
+		normal:
+		
+		addi sp,sp,-12
+		sw ra,(sp)
+		fsw fa0,4(sp)
+		sw a0,8(sp)
+		
+		fmv.s fa0,fs3
+		call floor
+		bnez a0,okYZero
+
+			fli (ft2,2)
+			flt.s t0,fs3,ft2
+			fli (ft0,12)
+			beqz t0,soma#checa se é negativo
+			fsub.s fs3,fs3,ft0
+			j okYZero
+			soma:fadd.s fs3,fs3,ft0
+		okYZero:
+		
+		fmv.s fa0,fs2
+		call floor
+		bnez a0,okXZero
+
+			fli (ft2,2)
+			flt.s t0,fs2,ft2
+			fli (ft0,2)
+			beqz t0,soma1
+			fsub.s fs2,fs2,ft0
+			j okXZero
+			soma1:fadd.s fs2,fs2,ft0
+		okXZero:
+		
+		lw ra,(sp)
+		flw fa0,4(sp)
+		lw a0,8(sp)
+		addi sp,sp,12
+		
+		
 		flw fs0,0(sp)
 		flw fs1,4(sp)
 		lw t0,8(sp)
 		addi sp,sp,12
-		fli (ft0,2)
+		#fli (ft0,2)
 		#fdiv.s ft0,fs5,ft0
 		fmul.s fs2,fs2,fs5
 		fmul.s fs3,fs3,fs5

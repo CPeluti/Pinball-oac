@@ -4,6 +4,7 @@ inputs:
 	li a0,0
 	jal KEY2       		# le o teclado 	non-blocking
 	lw ra,(sp)
+	addi sp,sp,4
 	ret
 
 ### Apenas verifica se há tecla pressionada
@@ -32,7 +33,7 @@ checkInputs:
 		la a1,flipperE
 		li a2,126
 		li a3,191
-		la a4,map
+		la a4,hitMap#map
 		call deleteFromAdress
 		#printa flipper rotacionado
 		
@@ -57,7 +58,7 @@ checkInputs:
 		la a1,flipperD
 		li a2,186
 		li a3,191
-		la a4,map
+		la a4,hitMap#map
 		call deleteFromAdress
 		#printa flipper rotacionado
 		la a1,flipperDROT
@@ -89,7 +90,7 @@ cleanFlippers:
 	la a1,flipperEROT
 	li a2,126
 	li a3,183
-	la a4,map
+	la a4,hitMap#map
 	call deleteFromAdress
 	#printa flipper normal
 	la a1,flipperE
@@ -116,7 +117,7 @@ cleanFlippers:
 	la a1,flipperDROT
 	li a2,186
 	li a3,183
-	la a4,map
+	la a4,hitMap#map
 	call deleteFromAdress
 	#printa flipper normal
 	la a1,flipperD

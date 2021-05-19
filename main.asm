@@ -57,7 +57,7 @@ bordas: .word 30,247,200,56
 	fcvt.s.w fa0,a0
 	fcvt.s.w fa1,a1
 	
-	la a3,map
+	la a3,hitMap
 	call show
 	
 	fcvt.w.s a0,fs0
@@ -85,8 +85,8 @@ loop:
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
 	la a3,ball
-	la a4,map
-	call deleteBall
+	la a4,hitMap
+	#call deleteBall
 	
 	li a0,0
 	li a1,0
@@ -124,6 +124,7 @@ updateBall:
 		#fa0 = x obstaculo
 		#fa1 = y obstaculo
 		#fa2 = raio obstaculo
+		#fa3 = tipo do pino
 		
 		inicioCheck:la t0,obstaculos
 		lw t6,0(t0)
@@ -143,7 +144,12 @@ updateBall:
 		beqz a0,check
 		j inicioCheck		
 		fimobstaculos:
+		addi sp,sp,-4
+		sw ra,(sp)
+		la a4,hitMap
 		call checkColision
+		lw ra,(sp)
+		addi sp,sp,4
 		
 		flw fa0,0(sp)
 		flw fa1,4(sp)
