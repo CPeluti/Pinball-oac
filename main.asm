@@ -15,6 +15,7 @@
 .include "./data/flipperD.data"
 .include "./data/flipperEROT.data"
 .include "./data/flipperDROT.data"
+.include "./data/stageRM.data"
 #n, (x,y,raio,tipo),(x,y,raio,tipo),(x,y,raio,tipo)	
 obstaculos: .word 8,173,113,6,2,138,136,6,2,207,137,6,2,207,89,6,2,138,88,6,2,145,62,4,1,172,62,4,1,201,62,4,1
 
@@ -74,6 +75,7 @@ bordas: .word 30,247,200,56
 	li a2,186
 	li a3,191
 	call drawOnScreen
+	la s10, map
 	j loop
 nextStage:
 
@@ -106,7 +108,7 @@ nextStage:
 	fcvt.s.w fa0,a0
 	fcvt.s.w fa1,a1
 	
-	la a3,map
+	la a3,stageRM
 	call show
 	
 	fcvt.w.s a0,fs0
@@ -123,7 +125,7 @@ nextStage:
 	li a2,186
 	li a3,191
 	call drawOnScreen
-
+	la s10, stageRM
 loop:
 	
 	call inputs
@@ -132,7 +134,7 @@ loop:
 	fcvt.w.s a0,fs0
 	fcvt.w.s a1,fs1
 	la a3,ball
-	la a4,map
+	mv a4,s10
 	call deleteBall
 	
 	li a0,0
